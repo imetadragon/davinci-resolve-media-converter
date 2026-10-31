@@ -1,5 +1,7 @@
 # DaVinci Resolve Media Converter (Linux)
 
+![Ekran Görüntüsü](sample.png)
+
 [Türkçe](#türkçe) | [English](#english)
 
 ---
