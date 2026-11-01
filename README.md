@@ -9,11 +9,11 @@
 <a name="türkçe"></a>
 ## 🇹🇷 Türkçe
 
-Linux'ta Davinci Resolve Ücretsiz veya Stüdyo versiyonunda desteklenmeyen AAC ses kodeği ve h264/5 video kodekleri için pratik bir grafik arayüzlü dönüştürücü.
+Linux'ta DaVinci Resolve Ücretsiz veya Stüdyo versiyonunda desteklenmeyen AAC ses kodeği ve h264/5 video kodekleri için pratik bir grafik arayüzlü dönüştürücü.
 
 Ücretsiz sürüm için **Videoyu yeniden kodla** seçeneğiyle MPEG-4 modunda dönüştürmeniz önerilir.
 
-Davinci Resolve Studio versiyonu h264/5 kodeklerini desteklese de AAC ses kodeğini desteklemiyor. Bu yüzden **Yalnızca Ses** modu ile AAC'yi PCM'e saniyeler içinde çevirebilirsiniz.
+DaVinci Resolve Studio versiyonu h264/5 kodeklerini desteklese de AAC ses kodeğini desteklemiyor. Bu yüzden **Yalnızca Ses** modu ile AAC'yi PCM'e saniyeler içinde çevirebilirsiniz.
 
 
 Özellikler
