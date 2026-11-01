@@ -17,6 +17,7 @@ DaVinci Resolve Studio versiyonu h264/5 kodeklerini desteklese de AAC ses kodeğ
 
 
 Özellikler
+- Çıktılar videonun bulunduğu dizinde **./output** dizini altına depolanır.
 - Video için çoklu codec Seçenekleri: MPEG-4, DNxHR LB ve DNxHR HQ modları.
 - Sürükle-Bırak Desteği: Dosyaları doğrudan arayüze bırakabilme.
 - Toplu Dönüştürme: Aynı anda birden fazla medyayı kuyruğa alıp işleme.
@@ -40,6 +41,7 @@ For the Free version, it is recommended to convert using the MPEG-4 mode with th
 Although DaVinci Resolve Studio supports h264/5 codecs, it does not support the AAC audio codec. Therefore, you can convert AAC to PCM in seconds using the **Audio Only** mode.
 
 Features
+- Outputs are stored under the **./output** directory located in the same directory as the video.
 - Multiple Codec Options: MPEG-4, DNxHR LB, and DNxHR HQ modes.
 - Drag & Drop Support: Ability to drop files directly into the interface.
 - Batch Conversion: Queue and process multiple media files simultaneously.
