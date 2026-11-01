@@ -9,18 +9,19 @@
 <a name="türkçe"></a>
 ## 🇹🇷 Türkçe
 
+Linux'ta Davinci Resolve Ücretsiz veya Stüdyo versiyonunda desteklenmeyen AAC ses kodeği ve h264/5 video kodekleri için pratik bir grafik arayüzlü dönüştürücü.
+
+Ücretsiz sürüm için **Videoyu yeniden kodla** seçeneğiyle MPEG-4 modunda dönüştürmeniz önerilir.
+
+Davinci Resolve Studio versiyonu h264/5 kodeklerini desteklese de AAC ses kodeğini desteklemiyor. Bu yüzden **Yalnızca Ses** modu ile AAC'yi PCM'e saniyeler içinde çevirebilirsiniz.
+
+
 Özellikler
-- MPEG-4 Varsayılanı: Hızlı ve uyumlu MPEG-4 video kodlama desteği.
-- Çoklu Codec Seçenekleri: MPEG-4, DNxHR LB ve DNxHR HQ modları.
+- Video için çoklu codec Seçenekleri: MPEG-4, DNxHR LB ve DNxHR HQ modları.
 - Sürükle-Bırak Desteği: Dosyaları doğrudan arayüze bırakabilme.
 - Toplu Dönüştürme: Aynı anda birden fazla medyayı kuyruğa alıp işleme.
 - Akıllı Hafıza (QSettings): Son seçilen ayarları ve arayüz dilini hatırlar.
 - Menü Kısayolu: Tek tıkla Linux uygulama menüsüne (.desktop) entegrasyon.
-
-Gereksinimler & Bağımlılıklar
-- Python 3.x
-- PyQt6
-- FFmpeg
 
 Kurulum
 1. FFmpeg'i sisteminize kurun (Örn: Ubuntu/Debian için `sudo apt install ffmpeg`).
@@ -32,18 +33,19 @@ Kurulum
 <a name="english"></a>
 ## 🇬🇧 English
 
+A practical GUI media converter for AAC audio codecs and h264/5 video codecs that are not supported in the Free or Studio versions of DaVinci Resolve on Linux.
+
+For the Free version, it is recommended to convert using the MPEG-4 mode with the **Re-encode Video** option.
+
+Although DaVinci Resolve Studio supports h264/5 codecs, it does not support the AAC audio codec. Therefore, you can convert AAC to PCM in seconds using the **Audio Only** mode.
+
 Features
-- MPEG-4 Default: Fast and compatible MPEG-4 video encoding support.
 - Multiple Codec Options: MPEG-4, DNxHR LB, and DNxHR HQ modes.
 - Drag & Drop Support: Ability to drop files directly into the interface.
 - Batch Conversion: Queue and process multiple media files simultaneously.
 - Smart Memory (QSettings): Remembers last selected settings and interface language.
 - Menu Shortcut: One-click integration into the Linux application menu (.desktop).
 
-Requirements & Dependencies
-- Python 3.x
-- PyQt6
-- FFmpeg
 
 Installation
 1. Install FFmpeg on your system (e.g., for Ubuntu/Debian `sudo apt install ffmpeg`).
