@@ -133,7 +133,8 @@ class ConversionWorker(QThread):
                 elif self.video_codec == "dnxhr_lb":
                     cmd.extend(["-c:v", "dnxhd", "-profile:v", "dnxhr_lb", "-pix_fmt", "yuv422p"])
 
-                cmd.extend(["-c:a", "aac" if self.video_codec == "mpeg4" else "pcm_s16le", "-f", "mp4" if self.video_codec == "mpeg4" else "mov"])
+                # Tüm video modlarında ses artık pcm_s16le olarak kodlanıyor
+                cmd.extend(["-c:a", "pcm_s16le", "-f", "mp4" if self.video_codec == "mpeg4" else "mov"])
             else:
                 cmd.extend(["-c:v", "copy", "-c:a", "pcm_s16le", "-f", "mov"])
 
