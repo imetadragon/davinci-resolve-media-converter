@@ -23,16 +23,18 @@ TRANSLATIONS = {
         "window_title": "DaVinci Resolve Medya Dönüştürücü",
         "drop_text": "Pencerenin Herhangi Bir Yerine Dosyaları Sürükleyin\nveya Tıklayıp Seçin",
         "select_files": "Video Dosyaları Seç",
-        "mode_video": "Mod: Video ve Ses Yeniden Kodlanıyor (MPEG-4)",
-        "mode_audio": "Varsayılan Mod: Sadece Ses (AAC to PCM)",
+        "mode_video": "Mod: Video dan Ses Yeniden Kodlanıyor",
+        "mode_audio": "Varsayılan Mod: Sadece Ses",
         "clear_list": "Listeyi Temizle",
         "video_checkbox": "Videoyu da Yeniden Kodla",
-        "codec_mpeg4": "MPEG-4 (Varsayılan)",
+        "audio_codec_label": "Ses Formatı:",
+        "codec_mpeg4": "MPEG-4 (Varsayılan Video)",
         "codec_dnxhr_lb": "DNxHR LB (Profesyonel - Az Alan Kaplar)",
         "codec_dnxhr_hq": "DNxHR HQ (Profesyonel - Yüksek Kalite)",
+        "codec_pcm24": "PCM 24-bit (Varsayılan)",
+        "codec_pcm16": "PCM 16-bit",
         "convert_btn": "Dönüştürmeyi Başlat",
         "stop_btn": "Dönüştürmeyi Durdur",
-        "desktop_tooltip": "Menü Kısayolu Oluştur",
         "lang_tooltip": "İngilizce'ye Geç",
         "waiting": "Bekliyor",
         "converting": "Dönüştürülüyor...",
@@ -48,24 +50,24 @@ TRANSLATIONS = {
         "add_files_prompt": "Lütfen önce en az bir medya dosyası ekleyin.",
         "output_exists_msg": "adet çıktı dosyası ./output/ dizinlerinde zaten mevcut:\n\nVar olan dosyaların üzerine yazmak istiyor musunuz?",
         "output_exists_title": "Çıktı Dosyaları Mevcut",
-        "desktop_success": "Uygulama menü kısayolu başarıyla oluşturuldu:\n{}",
-        "desktop_error": "Masaüstü kısayolu oluşturulurken hata oluştu:\n{}",
         "remove_tooltip": "Bu dosyayı listeden kaldır",
     },
     "en": {
         "window_title": "DaVinci Resolve Media Converter",
         "drop_text": "Drag and Drop Files Anywhere Here\nor Click to Select",
         "select_files": "Select Video Files",
-        "mode_video": "Mode: Video and Audio Re-encoded (MPEG-4)",
-        "mode_audio": "Default Mode: Audio Only (AAC to PCM)",
+        "mode_video": "Mode: Video and Audio Re-encoded",
+        "mode_audio": "Default Mode: Audio Only",
         "clear_list": "Clear List",
         "video_checkbox": "Re-encode Video",
-        "codec_mpeg4": "MPEG-4 (Default)",
+        "audio_codec_label": "Audio Format:",
+        "codec_mpeg4": "MPEG-4 (Default Video)",
         "codec_dnxhr_lb": "DNxHR LB (Professional - Low Size)",
         "codec_dnxhr_hq": "DNxHR HQ (Professional - High Quality)",
+        "codec_pcm24": "PCM 24-bit (Default)",
+        "codec_pcm16": "PCM 16-bit",
         "convert_btn": "Start Conversion",
         "stop_btn": "Stop Conversion",
-        "desktop_tooltip": "Create Menu Shortcut",
         "lang_tooltip": "Switch to Turkish",
         "waiting": "Waiting",
         "converting": "Converting...",
@@ -81,8 +83,6 @@ TRANSLATIONS = {
         "add_files_prompt": "Please add at least one media file first.",
         "output_exists_msg": "output files already exist in ./output/ directories:\n\nDo you want to overwrite existing files?",
         "output_exists_title": "Output Files Exist",
-        "desktop_success": "Menu shortcut successfully created:\n{}",
-        "desktop_error": "Error occurred while creating desktop shortcut:\n{}",
         "remove_tooltip": "Remove this file from list",
     }
 }
@@ -92,11 +92,12 @@ class ConversionWorker(QThread):
     progress_signal = pyqtSignal(int, str, str)
     finished_signal = pyqtSignal()
 
-    def __init__(self, file_queue, convert_video=True, video_codec="mpeg4", overwrite=False, lang="tr"):
+    def __init__(self, file_queue, convert_video=True, video_codec="mpeg4", audio_codec="pcm_24", overwrite=False, lang="tr"):
         super().__init__()
         self.file_queue = file_queue
         self.convert_video = convert_video
         self.video_codec = video_codec
+        self.audio_codec = audio_codec
         self.overwrite = overwrite
         self.lang = lang
         self.t = TRANSLATIONS[lang]
@@ -125,6 +126,15 @@ class ConversionWorker(QThread):
 
             cmd = ["ffmpeg", "-y", "-i", file_path]
 
+            # Ses kodlama argümanları (Sadece güvenli PCM formatları)
+            audio_args = []
+            if self.audio_codec == "pcm_24":
+                audio_args = ["-c:a", "pcm_s24le"]
+            elif self.audio_codec == "pcm_16":
+                audio_args = ["-c:a", "pcm_s16le"]
+            else:
+                audio_args = ["-c:a", "pcm_s24le"]
+
             if self.convert_video:
                 if self.video_codec == "mpeg4":
                     cmd.extend(["-c:v", "mpeg4", "-q:v", "2", "-pix_fmt", "yuv420p"])
@@ -133,10 +143,9 @@ class ConversionWorker(QThread):
                 elif self.video_codec == "dnxhr_lb":
                     cmd.extend(["-c:v", "dnxhd", "-profile:v", "dnxhr_lb", "-pix_fmt", "yuv422p"])
 
-                # Tüm video modlarında ses artık pcm_s16le olarak kodlanıyor
-                cmd.extend(["-c:a", "pcm_s16le", "-f", "mp4" if self.video_codec == "mpeg4" else "mov"])
+                cmd.extend(audio_args + ["-f", "mp4" if self.video_codec == "mpeg4" else "mov"])
             else:
-                cmd.extend(["-c:v", "copy", "-c:a", "pcm_s16le", "-f", "mov"])
+                cmd.extend(["-c:v", "copy"] + audio_args + ["-f", "mov"])
 
             cmd.append(output_path)
 
@@ -275,8 +284,9 @@ class DropArea(QFrame):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
+            home_directory = os.path.expanduser("~")
             files, _ = QFileDialog.getOpenFileNames(
-                self, self.t["select_files"], "", "Video Files (*.mp4 *.mov *.mkv);;All Files (*.*)"
+                self, self.t["select_files"], home_directory, "Video Files (*.mp4 *.mov *.mkv);;All Files (*.*)"
             )
             if files:
                 self.files_dropped.emit(files)
@@ -293,7 +303,7 @@ class MainWindow(QMainWindow):
         self.t = TRANSLATIONS[self.lang]
 
         self.setWindowTitle(self.t["window_title"])
-        self.resize(680, 600)
+        self.resize(680, 630)
         self.setAcceptDrops(True)
 
         self.files_list = []
@@ -412,22 +422,13 @@ class MainWindow(QMainWindow):
         main_layout.setSpacing(12)
         main_layout.setContentsMargins(16, 16, 16, 16)
 
-        # Üst Başlık ve Sağ Üst Emojili 1:1 Butonlar
+        # Üst Başlık ve Sağ Üst Dil Değiştirme Butonu
         top_layout = QHBoxLayout()
         self.title_label = QLabel(self.t["window_title"])
         self.title_label.setStyleSheet("font-size: 17px; font-weight: 600; color: #F5F5F7;")
         top_layout.addWidget(self.title_label)
         top_layout.addStretch()
 
-        # Menü Kısayol Butonu (🔗 1:1)
-        self.desktop_btn = QPushButton("🔗")
-        self.desktop_btn.setProperty("class", "icon_btn")
-        self.desktop_btn.setFixedSize(36, 36)
-        self.desktop_btn.setToolTip(self.t["desktop_tooltip"])
-        self.desktop_btn.clicked.connect(self.create_desktop_file)
-        top_layout.addWidget(self.desktop_btn)
-
-        # Dil Değiştirme Butonu (Bayrak 1:1)
         flag_emoji = "🇬🇧" if self.lang == "tr" else "🇹🇷"
         self.lang_btn = QPushButton(flag_emoji)
         self.lang_btn.setProperty("class", "icon_btn")
@@ -455,6 +456,7 @@ class MainWindow(QMainWindow):
         ctrl_layout1.addWidget(self.clear_btn)
         main_layout.addLayout(ctrl_layout1)
 
+        # Video seçenekleri satırı
         ctrl_layout2 = QHBoxLayout()
         self.video_checkbox = QCheckBox(self.t["video_checkbox"])
         self.video_checkbox.setChecked(True)
@@ -473,6 +475,21 @@ class MainWindow(QMainWindow):
         ctrl_layout2.addStretch()
         main_layout.addLayout(ctrl_layout2)
 
+        # Ses seçenekleri satırı (Yalnızca PCM 24-bit ve 16-bit)
+        ctrl_layout3 = QHBoxLayout()
+        self.audio_codec_label = QLabel(self.t["audio_codec_label"])
+        self.audio_codec_label.setStyleSheet("color: #8E8E93; font-size: 12px; font-weight: 500;")
+
+        self.audio_codec_combo = QComboBox()
+        self.audio_codec_combo.addItem(self.t["codec_pcm24"], "pcm_24")
+        self.audio_codec_combo.addItem(self.t["codec_pcm16"], "pcm_16")
+        self.audio_codec_combo.currentIndexChanged.connect(self.save_settings)
+
+        ctrl_layout3.addWidget(self.audio_codec_label)
+        ctrl_layout3.addWidget(self.audio_codec_combo)
+        ctrl_layout3.addStretch()
+        main_layout.addLayout(ctrl_layout3)
+
         self.list_widget = QListWidget()
         main_layout.addWidget(self.list_widget)
 
@@ -480,7 +497,7 @@ class MainWindow(QMainWindow):
         self.progress_bar.setValue(0)
         main_layout.addWidget(self.progress_bar)
 
-        # En alt alan: Yalnızca dönüştürme butonları
+        # En alt alan: Dönüştürme butonları
         btn_layout = QHBoxLayout()
 
         self.convert_btn = QPushButton(self.t["convert_btn"])
@@ -498,16 +515,24 @@ class MainWindow(QMainWindow):
     def load_settings(self):
         convert_video = self.settings.value("convert_video", True, type=bool)
         codec_data = self.settings.value("video_codec", "mpeg4", type=str)
+        audio_codec_data = self.settings.value("audio_codec", "pcm_24", type=str)
 
         self.video_checkbox.setChecked(convert_video)
+
         index = self.video_codec_combo.findData(codec_data)
         if index != -1:
             self.video_codec_combo.setCurrentIndex(index)
+
+        audio_index = self.audio_codec_combo.findData(audio_codec_data)
+        if audio_index != -1:
+            self.audio_codec_combo.setCurrentIndex(audio_index)
+
         self.toggle_video_options(convert_video)
 
     def save_settings(self):
         self.settings.setValue("convert_video", self.video_checkbox.isChecked())
         self.settings.setValue("video_codec", self.video_codec_combo.currentData())
+        self.settings.setValue("audio_codec", self.audio_codec_combo.currentData())
         self.settings.setValue("language", self.lang)
 
     def toggle_language(self):
@@ -519,67 +544,34 @@ class MainWindow(QMainWindow):
     def retranslate_ui(self):
         self.setWindowTitle(self.t["window_title"])
         self.title_label.setText(self.t["window_title"])
-        self.desktop_btn.setToolTip(self.t["desktop_tooltip"])
         self.lang_btn.setText("🇬🇧" if self.lang == "tr" else "🇹🇷")
         self.lang_btn.setToolTip(self.t["lang_tooltip"])
 
         self.drop_area.update_language(self.lang)
         self.clear_btn.setText(self.t["clear_list"])
         self.video_checkbox.setText(self.t["video_checkbox"])
+        self.audio_codec_label.setText(self.t["audio_codec_label"])
 
-        current_data = self.video_codec_combo.currentData()
+        current_video_data = self.video_codec_combo.currentData()
         self.video_codec_combo.clear()
         self.video_codec_combo.addItem(self.t["codec_mpeg4"], "mpeg4")
         self.video_codec_combo.addItem(self.t["codec_dnxhr_lb"], "dnxhr_lb")
         self.video_codec_combo.addItem(self.t["codec_dnxhr_hq"], "dnxhr_hq")
-        idx = self.video_codec_combo.findData(current_data)
-        if idx != -1:
-            self.video_codec_combo.setCurrentIndex(idx)
+        idx_video = self.video_codec_combo.findData(current_video_data)
+        if idx_video != -1:
+            self.video_codec_combo.setCurrentIndex(idx_video)
+
+        current_audio_data = self.audio_codec_combo.currentData()
+        self.audio_codec_combo.clear()
+        self.audio_codec_combo.addItem(self.t["codec_pcm24"], "pcm_24")
+        self.audio_codec_combo.addItem(self.t["codec_pcm16"], "pcm_16")
+        idx_audio = self.audio_codec_combo.findData(current_audio_data)
+        if idx_audio != -1:
+            self.audio_codec_combo.setCurrentIndex(idx_audio)
 
         self.toggle_video_options(self.video_checkbox.isChecked())
         self.convert_btn.setText(self.t["convert_btn"])
         self.stop_btn.setText(self.t["stop_btn"])
-
-    def create_desktop_file(self):
-        try:
-            home_dir = os.path.expanduser("~")
-            apps_dir = os.path.join(home_dir, ".local", "share", "applications")
-            os.makedirs(apps_dir, exist_ok=True)
-
-            script_path = os.path.abspath(__file__)
-            script_dir = os.path.dirname(script_path)
-
-            desktop_content = f"""[Desktop Entry]
-Comment=DaVinci Resolve Media Converter
-Exec=python3 "{script_path}"
-GenericName=AAC to DaVinci Resolve Converter
-Icon=accessories-media-converter
-Name=DaVinci AAC Converter
-NoDisplay=false
-Path={script_dir}
-PrefersNonDefaultGPU=false
-StartupNotify=true
-Terminal=false
-Type=Application
-Categories=AudioVideo;Audio;Video;
-"""
-            desktop_file_path = os.path.join(apps_dir, "davinci_aac_converter.desktop")
-            with open(desktop_file_path, "w", encoding="utf-8") as f:
-                f.write(desktop_content)
-
-            os.chmod(desktop_file_path, 0o755)
-
-            QMessageBox.information(
-                self,
-                self.t["success"],
-                self.t["desktop_success"].format(desktop_file_path)
-            )
-        except Exception as e:
-            QMessageBox.critical(
-                self,
-                self.t["warning"],
-                self.t["desktop_error"].format(str(e))
-            )
 
     def dragEnterEvent(self, event: QDragEnterEvent):
         if event.mimeData().hasUrls():
@@ -651,6 +643,7 @@ Categories=AudioVideo;Audio;Video;
 
         convert_video = self.video_checkbox.isChecked()
         video_codec = self.video_codec_combo.currentData()
+        audio_codec = self.audio_codec_combo.currentData()
         ext = ".mp4" if video_codec == "mpeg4" else ".mov"
 
         existing_files = []
@@ -689,7 +682,6 @@ Categories=AudioVideo;Audio;Video;
         self.convert_btn.setEnabled(False)
         self.stop_btn.setEnabled(True)
         self.clear_btn.setEnabled(False)
-        self.desktop_btn.setEnabled(False)
         self.lang_btn.setEnabled(False)
         self.drop_area.setEnabled(False)
         self.progress_bar.setMaximum(len(self.files_list))
@@ -700,6 +692,7 @@ Categories=AudioVideo;Audio;Video;
             queue,
             convert_video=convert_video,
             video_codec=video_codec,
+            audio_codec=audio_codec,
             overwrite=overwrite,
             lang=self.lang
         )
@@ -727,7 +720,6 @@ Categories=AudioVideo;Audio;Video;
         self.convert_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
         self.clear_btn.setEnabled(True)
-        self.desktop_btn.setEnabled(True)
         self.lang_btn.setEnabled(True)
         self.drop_area.setEnabled(True)
 
