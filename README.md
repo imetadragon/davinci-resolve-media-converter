@@ -13,12 +13,25 @@ For the Free version, it is recommended to convert using the MPEG-4 mode with th
 
 Although DaVinci Resolve Studio supports h264/5 codecs, it does not support the AAC audio codec. Therefore, you can convert AAC to PCM in seconds using the **Audio Only** mode.
 
-Features
+## Prerequisites & Dependencies
+
+This application requires **FFmpeg** to be installed on your system to perform media conversions. You can install it via your distribution's package manager:
+
+- **Ubuntu / Debian:** `sudo apt install ffmpeg`
+- **Fedora:** `sudo dnf install ffmpeg`
+- **Arch Linux:** `sudo pacman -S ffmpeg`
+
+## Features
 - Outputs are stored under the **./output** directory located in the same directory as the video.
+
 - Multiple Codec Options: MPEG-4, DNxHR LB, and DNxHR HQ modes.
+
 - Drag & Drop Support: Ability to drop files directly into the interface.
+
 - Batch Conversion: Queue and process multiple media files simultaneously.
+
 - Smart Memory (QSettings): Remembers last selected settings and interface language.
+
 
 ---
 
@@ -31,10 +44,21 @@ Linux'ta DaVinci Resolve Ücretsiz veya Stüdyo versiyonunda desteklenmeyen AAC 
 DaVinci Resolve Studio versiyonu h264/5 kodeklerini desteklese de AAC ses kodeğini desteklemiyor. Bu yüzden **Yalnızca Ses** modu ile AAC'yi PCM'e saniyeler içinde çevirebilirsiniz.
 
 
-Özellikler
-- Çıktılar videonun bulunduğu dizinde **./output** dizini altına depolanır.
-- Video için çoklu codec Seçenekleri: MPEG-4, DNxHR LB ve DNxHR HQ modları.
-- Sürükle-Bırak Desteği: Dosyaları doğrudan arayüze bırakabilme.
-- Toplu Dönüştürme: Aynı anda birden fazla medyayı kuyruğa alıp işleme.
-- Akıllı Hafıza (QSettings): Son seçilen ayarları ve arayüz dilini hatırlar.
+## Gereksinimler ve Bağımlılıklar
 
+Uygulamanın medya dönüştürme işlemlerini gerçekleştirebilmesi için sisteminizde **FFmpeg** aracının kurulu olması gerekir. Kullandığınız dağıtımın paket yöneticisi ile kolayca kurabilirsiniz:
+
+- **Ubuntu / Debian:** `sudo apt install ffmpeg`
+- **Fedora:** `sudo dnf install ffmpeg`
+- **Arch Linux:** `sudo pacman -S ffmpeg`
+
+## Özellikler
+- Çıktılar videonun bulunduğu dizinde **./output** dizini altına depolanır.
+
+- Video için çoklu codec Seçenekleri: MPEG-4, DNxHR LB ve DNxHR HQ modları.
+
+- Sürükle-Bırak Desteği: Dosyaları doğrudan arayüze bırakabilme.
+
+- Toplu Dönüştürme: Aynı anda birden fazla medyayı kuyruğa alıp işleme.
+
+- Akıllı Hafıza (QSettings): Son seçilen ayarları ve arayüz dilini hatırlar.
